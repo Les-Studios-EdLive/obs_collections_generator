@@ -1010,7 +1010,7 @@
         "clear_on_media_end": false,
         "is_local_file": true,
         "linear_alpha": false,
-        "local_file": "C:/Program Files/obs-studio/EdLive/Timers/Timer 10min.mkv",
+        "local_file": "C:/Program Files/obs-studio/EdLive/Timers/10min_fr_CA.mkv",
         "looping": false,
         "reconnect_delay_sec": 10,
         "restart_on_activate": true,
@@ -2303,7 +2303,7 @@
         "audio_monitoring": 2,
         "hw_decode": true,
         "invert_matte": false,
-        "path": "C:/Program Files/obs-studio/EdLive/Transitions/Stinger - Balayage Oblique.avi",
+        "path": "C:/Program Files/obs-studio/EdLive/Transitions/Stinger - Balayage Oblique.webm",
         "track_matte_enabled": false,
         "track_matte_layout": 1,
         "transition_point": 600
@@ -2315,7 +2315,7 @@
       "settings": {
         "audio_fade_style": 1,
         "audio_monitoring": 2,
-        "path": "C:/Program Files/obs-studio/EdLive/Transitions/Stinger - Balayage Vertical.avi",
+        "path": "C:/Program Files/obs-studio/EdLive/Transitions/Stinger - Balayage Vertical.webm",
         "transition_point": 500
       }
     }

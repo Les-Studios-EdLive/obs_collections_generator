@@ -9,8 +9,10 @@ collections: # Each collection available, these names are associated with a fold
    - fr_CA
    - en_US
   backgrounds:
-   - ...
+   - Hexagons.mp4
   musics:
-   - ...
+   - Generic.mp3
+   - End.mp3
   stingers:
-   - ...
+   - Stinger - Balayage Oblique.webm
+   - Stinger - Balayage Vertical.webm
