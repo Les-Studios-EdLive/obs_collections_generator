@@ -1,5 +1,16 @@
 version: 0.1.0
-# Each camera supported. This name represent the camera and the folder associated with it.
+# Each camera supported. This name represents the camera and the folder associated with it.
 camera:
  - t7i
  - panasonics_v180
+collections: # Each collection available, these names are associated with a folder inside the 'collections' folder.
+ default:
+  langs:
+   - fr_CA
+   - en_US
+  backgrounds:
+   - ...
+  musics:
+   - ...
+  stingers:
+   - ...
