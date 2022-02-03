@@ -1,0 +1,5 @@
+version: 0.1.0
+# Each camera supported. This name represent the camera and the folder associated with it.
+camera:
+ - t7i
+ - panasonics_v180
