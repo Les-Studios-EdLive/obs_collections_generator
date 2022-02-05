@@ -3,14 +3,20 @@ version: 0.1.0
 camera:
  - t7i
  - panasonics_v180
-collections: # Each collection available, these names are associated with a folder inside the 'collections' folder.
+# Each collection available, these names are associated with a folder inside the 'collections' folder.
+# This is used to build the archive with the complete OBS collections. The options available are:
+# - 'langs': every language available for the collection, should contain a list of l10n code (e.g.: fr_CA)
+# - 'backgrounds': list of every backgrounds used in the collection.
+# - 'musics': list of all the audio files used in the collection.
+# - 'stingers': list of all the video files used as stingers in the collection.
+collections:
  default:
   langs:
    - fr_CA
    - en_US
   backgrounds:
    - Hexagons.mp4
-  musics:
+  audios:
    - Generic.mp3
    - End.mp3
   stingers:
