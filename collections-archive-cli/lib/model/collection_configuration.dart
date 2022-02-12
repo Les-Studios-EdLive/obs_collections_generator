@@ -49,7 +49,7 @@ class CollectionConfiguration {
 
           // Add collection file
           files.putIfAbsent(
-              "$baseOutputPath/${name}_$language.json",
+              "$baseOutputPath/${name}.json",
               () =>
                   "$collectionsPath/$name/$currentOs/$camera/${name}_$language.json");
 
@@ -89,10 +89,11 @@ class CollectionConfiguration {
                 in collectionSharedAssetsDirectory.listSync(recursive: true)) {
               if (entity is File) {
                 file = entity;
-                if (file.path.contains(RegExp(r'_[a-z]{2}_[A-Z]{2}.[a-zA-Z0-9]+$')) &&
+                if (file.path.contains(
+                        RegExp(r'_[a-z]{2}_[A-Z]{2}.[a-zA-Z0-9]+$')) &&
                     file.path.contains(RegExp(language + r'.[a-zA-Z0-9]+$'))) {
                   files.putIfAbsent(
-                      "$baseOutputPath${file.path.substring(collectionSharedAssetsDirectory.path.length)}",
+                      "$baseOutputPath${file.path.substring(collectionSharedAssetsDirectory.path.length).replaceFirst(RegExp(r'_[a-z]{2}_[A-Z]{2}'), '')}",
                       () => file.path);
                 }
               }
@@ -114,9 +115,9 @@ class CollectionConfiguration {
                       as YamlList)
                   .map<String>((element) => element)
                   .toList(growable: false),
-          os: (map['os'] as YamlList)
-              .map<String>((element) => element)
-              .toList(growable: false),
+          os:
+              (map['os'] as YamlList).map<String>((element) => element).toList(
+                  growable: false),
           languageSupported: (map['langs'] as YamlList)
               .map<String>((element) => element)
               .toList(growable: false),
