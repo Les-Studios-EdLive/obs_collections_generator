@@ -50,4 +50,7 @@ Please follow these naming rules:
 
 - if the file (image, video, collection, etc.) contains localized text (text in a specific language), the naming convention is:
   - ``<name>_<language_short_code>_<country_code>.<extension>`` for example: `blue_background_fr_CA.jpg`
-  
+
+### CLI usage 
+
+Under the ``cli-compiled`` folder you can find the 
