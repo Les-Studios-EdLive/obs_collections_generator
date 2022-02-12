@@ -1,16 +1,30 @@
 version: 0.1.0
 # Each camera supported. This name represents the camera and the folder associated with it.
-camera:
+cameras:
  - t7i
  - panasonics_v180
-collections: # Each collection available, these names are associated with a folder inside the 'collections' folder.
+# Each collection available, these names are associated with a folder inside the 'collections' folder.
+# This is used to build the archive with the complete OBS collections. The options available are:
+# - 'cameras': REQUIRED every camera available for the collection, should contain a list of camera name or shortname (e.g.: t71)
+# - 'langs': REQUIRED every language available for the collection, should contain a list of l10n code (e.g.: fr_CA)
+# - 'os': REQUIRED every OS available for the collection, should contain a list of OS name between: macos, windows or linux
+# - 'backgrounds': list of every backgrounds used in the collection.
+# - 'musics': list of all the audio files used in the collection.
+# - 'stingers': list of all the video files used as stingers in the collection.
+collections:
  default:
+  cameras:
+   - t7i
+   - panasonics_v180
   langs:
    - fr_CA
    - en_US
+  os:
+   - macos
+   - windows
   backgrounds:
    - Hexagons.mp4
-  musics:
+  audios:
    - Generic.mp3
    - End.mp3
   stingers:
