@@ -46,6 +46,7 @@ class CollectionConfiguration {
       for (String camera in cameras) {
         for (String language in languageSupported) {
           String baseOutputPath = "${name}_${currentOs}_${camera}_$language";
+          String baseAssetsOutputPath = "$baseOutputPath/assets";
 
           // Add collection file
           files.putIfAbsent(
@@ -54,13 +55,13 @@ class CollectionConfiguration {
                   "$collectionsPath/$name/$currentOs/$camera/${name}_$language.json");
 
           // Add colorimetry
-          files.putIfAbsent("$baseOutputPath/colorimetry/LUT.png",
+          files.putIfAbsent("$baseAssetsOutputPath/colorimetry/LUT.png",
               () => "$sharedAssetsPath/colorimetry/$camera/$currentOs/LUT.png");
 
           // Add backgrounds files
           if (backgrounds.isNotEmpty) {
             for (String background in backgrounds) {
-              files.putIfAbsent("$baseOutputPath/backgrounds/$background",
+              files.putIfAbsent("$baseAssetsOutputPath/backgrounds/$background",
                   () => "$sharedAssetsPath/backgrounds/$background");
             }
           }
@@ -68,7 +69,7 @@ class CollectionConfiguration {
           // Add audio files
           if (audios.isNotEmpty) {
             for (String audio in audios) {
-              files.putIfAbsent("$baseOutputPath/audios/$audio",
+              files.putIfAbsent("$baseAssetsOutputPath/audios/$audio",
                   () => "$sharedAssetsPath/audios/$audio");
             }
           }
@@ -76,7 +77,7 @@ class CollectionConfiguration {
           // Add Stinger files
           if (stingers.isNotEmpty) {
             for (String stinger in stingers) {
-              files.putIfAbsent("$baseOutputPath/stingers/$stinger",
+              files.putIfAbsent("$baseAssetsOutputPath/stingers/$stinger",
                   () => "$sharedAssetsPath/stingers/$stinger");
             }
           }
@@ -93,7 +94,7 @@ class CollectionConfiguration {
                         RegExp(r'_[a-z]{2}_[A-Z]{2}.[a-zA-Z0-9]+$')) &&
                     file.path.contains(RegExp(language + r'.[a-zA-Z0-9]+$'))) {
                   files.putIfAbsent(
-                      "$baseOutputPath${file.path.substring(collectionSharedAssetsDirectory.path.length).replaceFirst(RegExp(r'_[a-z]{2}_[A-Z]{2}'), '')}",
+                      "$baseAssetsOutputPath${file.path.substring(collectionSharedAssetsDirectory.path.length).replaceFirst(RegExp(r'_[a-z]{2}_[A-Z]{2}'), '')}",
                       () => file.path);
                 }
               }
