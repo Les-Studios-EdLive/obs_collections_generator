@@ -1,12 +1,6 @@
 import 'dart:io';
 
 import 'package:archive/archive_io.dart';
-import 'package:args/args.dart';
-import 'package:collections_archive_cli/model/collection_configuration.dart';
-import 'package:yaml/yaml.dart';
-
-import 'model/configuration.dart';
-
 const missingFilesTag = "MISSING_FILES";
 const missingFilesFileName = "missing_files";
 

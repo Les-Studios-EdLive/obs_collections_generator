@@ -64,7 +64,7 @@ class GenerateCommand extends Command {
 
   @override
   void run() {
-    final verbose = argResults!["verbose"];
+    final verbose = globalResults!["verbose"];
     final configFile = File(argResults!["config"]);
 
     // Load configuration file
