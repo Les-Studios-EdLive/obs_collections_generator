@@ -17,6 +17,8 @@ class VerifyCommand extends Command {
       "This will check the name, path and position of every files used by any"
       "collection specified in the configuration file";
 
+  bool _verbose = false;
+
   VerifyCommand() {
     argParser
       ..addOption("config",
@@ -42,19 +44,23 @@ class VerifyCommand extends Command {
           aliases: ["collections-dir"],
           help:
               "Path to the directory who contains the files specific to each collections",
-          defaultsTo: "./collections");
+          defaultsTo: "./collections")
+      ..addOption("output",
+          abbr: "o",
+          help:
+          "Path to the output directory which will contains a text file with the list of error");
   }
 
   @override
   void run() {
-    final verbose = globalResults!["verbose"];
+    _verbose = globalResults!["verbose"];
     final configFile = File(argResults!["config"]);
 
     // Load configuration file
     Configuration configuration =
         Configuration.fromYaml(loadYaml(configFile.readAsStringSync()));
 
-    if (verbose) {
+    if (_verbose) {
       stdout.writeln(
           "Configuration file loaded, version: ${configuration.version}");
     }
@@ -74,9 +80,9 @@ class VerifyCommand extends Command {
 
     final Map<String, String> errorFiles = {};
 
-    // Check the shared and collections directories integrity
+    // Check the shared directory integrity
     errorFiles
-        .addAll(_validateFilesName(sharedDirectory, collectionsDirectory));
+        .addAll(_validateSharedDirectory(sharedDirectory));
 
     final List<String> filesToCheck = [];
 
@@ -101,42 +107,74 @@ class VerifyCommand extends Command {
     exit(0);
   }
 
-  /// Check the name of every files in [sharedDirectory] and [collectionsDirectory]
+  /// Check the name of every files in [sharedDirectory]
   /// then give back a map of all the files wrongly named.
   /// The key is the file path that has the bad name and the value is the name
   /// expected.
-  Map<String, String> _validateFilesName(
-      Directory sharedDirectory, Directory collectionsDirectory) {
+  Map<String, String> _validateSharedDirectory(
+      Directory sharedDirectory) {
     final Map<String, String> wrongFiles = {};
-    File tmp;
+    final List<String> processedFiles = [];
 
+    File tmp;
+    bool added;
+
+    if(_verbose) {
+      stdout.writeln("Start processing of shared directory");
+    }
     for (FileSystemEntity entity in sharedDirectory.listSync(recursive: true)) {
       if (entity is File) {
         tmp = entity;
 
-        if (tmp.path.contains(gitKeepRegExp)) {
+        if(processedFiles.contains(tmp.path)) {
+          if(_verbose) {
+            stdout.writeln("Skipping ${tmp.path} because already processed");
+          }
           continue;
+        }
+        added = false;
+
+        if (tmp.path.contains(gitKeepRegExp)) {
+          if(_verbose) {
+            stdout.writeln("Skipping .gitKeep ${tmp.path}");
+          }
+          continue;
+        }
+
+        if(_verbose) {
+          stdout.writeln("Checking ${tmp.path}...");
         }
 
         if (tmp.path.contains(colorimetryPathConvention) &&
             !tmp.path.contains(lutFilepathConvention)) {
+          added = true;
           wrongFiles.putIfAbsent(
               tmp.path,
               () =>
                   'LUT file should follow: "colorimetry/<camera_name>/<os_name>/LUT.png"');
         } else if (!tmp.path.contains(sharedFilepathConvention)) {
+          added = true;
           wrongFiles.putIfAbsent(
               tmp.path,
               () =>
                   'Shared file should follow the following pattern: "<folder_name>/<file_name>.<extension>" (example: stinger/transition.webm)');
         } else if (tmp.path.contains(languageCodeFileRegexp)) {
+          added = true;
           wrongFiles.putIfAbsent(
               tmp.path, () => 'Shared file should not be localized.');
         }
+
+        if(_verbose && added) {
+          stderr.writeln("File: ${tmp.path} Error: ${wrongFiles[tmp.path]}");
+        }
+
+        processedFiles.add(tmp.path);
       }
     }
 
-    // TODO check collections directory
+    if(_verbose) {
+      stdout.writeln("Processing of shared directory finished");
+    }
 
     return wrongFiles;
   }
