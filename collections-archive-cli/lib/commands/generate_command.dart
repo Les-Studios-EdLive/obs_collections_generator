@@ -69,7 +69,7 @@ class GenerateCommand extends Command {
 
     // Load configuration file
     Configuration configuration =
-    Configuration.fromYaml(loadYaml(configFile.readAsStringSync()));
+        Configuration.fromYaml(loadYaml(configFile.readAsStringSync()));
     // If verbose
     if (verbose) {
       stdout.writeln(
@@ -86,24 +86,26 @@ class GenerateCommand extends Command {
           verbose: verbose);
     }
 
-    stdout.writeln("Processing finished. Output is available at: ${argResults!["output"]}");
+    stdout.writeln(
+        "Processing finished. Output is available at: ${argResults!["output"]}");
     exit(0);
   }
 
   void processCollection(CollectionConfiguration collection,
       {required String sharedAssetsPath,
-        required String collectionsPath,
-        required String outputDirectoryPath,
-        bool dryRun = false,
-        bool verbose = false}) {
+      required String collectionsPath,
+      required String outputDirectoryPath,
+      bool dryRun = false,
+      bool verbose = false}) {
     stdout.writeln("Building ${collection.name} collection files...");
 
     final outputDirectory = Directory(outputDirectoryPath);
-    final listFiles = collection.getFilesList(sharedAssetsPath, collectionsPath);
+    final listFiles =
+        collection.getFilesList(sharedAssetsPath, collectionsPath);
 
     // Create missing files text file.
     final missingFilesByFolders =
-    copyFiles(listFiles, outputDirectory.path, verbose);
+        copyFiles(listFiles, outputDirectory.path, verbose);
     File file;
 
     missingFilesByFolders.forEach((folderName, missingFiles) {
@@ -119,7 +121,7 @@ class GenerateCommand extends Command {
     // Archive collections
     stdout.writeln("Start archiving ${collection.name} folders...");
     for (FileSystemEntity entity
-    in outputDirectory.listSync(followLinks: false)) {
+        in outputDirectory.listSync(followLinks: false)) {
       if (entity is Directory) {
         archive(entity, dryRun, verbose);
       }

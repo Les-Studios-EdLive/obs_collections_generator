@@ -18,10 +18,11 @@ class Configuration {
 
   factory Configuration.fromYaml(YamlMap map) => Configuration(
       version: map['version'] as String,
-      cameras: (map['cameras'] as YamlList).map<String>((element) => element).toList(growable: false),
+      cameras: (map['cameras'] as YamlList)
+          .map<String>((element) => element)
+          .toList(growable: false),
       collections: (map['collections'] as YamlMap)
           .entries
-          .map((e) => CollectionConfiguration.fromYaml(
-              e.key, e.value))
+          .map((e) => CollectionConfiguration.fromYaml(e.key, e.value))
           .toList(growable: false));
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:collections_archive_cli/utils.dart';
 import 'package:yaml/yaml.dart';
 
 class CollectionConfiguration {
@@ -84,18 +85,16 @@ class CollectionConfiguration {
 
           final collectionSharedAssetsDirectory =
               Directory("$collectionsPath/$name/shared");
-          File file;
           if (collectionSharedAssetsDirectory.existsSync()) {
             for (FileSystemEntity entity
                 in collectionSharedAssetsDirectory.listSync(recursive: true)) {
               if (entity is File) {
-                file = entity;
-                if (file.path.contains(
-                        RegExp(r'_[a-z]{2}_[A-Z]{2}.[a-zA-Z0-9]+$')) &&
-                    file.path.contains(RegExp(language + r'.[a-zA-Z0-9]+$'))) {
+                if (entity.path.contains(RegExp(languageCodeFileRegexp)) &&
+                    entity.path
+                        .contains(RegExp(language + r'.[a-zA-Z0-9]+$'))) {
                   files.putIfAbsent(
-                      "$baseAssetsOutputPath${file.path.substring(collectionSharedAssetsDirectory.path.length).replaceFirst(RegExp(r'_[a-z]{2}_[A-Z]{2}'), '')}",
-                      () => file.path);
+                      "$baseAssetsOutputPath${entity.path.substring(collectionSharedAssetsDirectory.path.length).replaceFirst(RegExp(languageCodeFileRegexp), '')}",
+                      () => entity.path);
                 }
               }
             }
