@@ -5,6 +5,5 @@ void main() {
     test("Configuration file not given should fail", () async {
       expect(true, true, reason: "Please write tests...");
     })
-
   });
 }
