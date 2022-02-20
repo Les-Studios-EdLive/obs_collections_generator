@@ -7,7 +7,6 @@ on:
     paths-ignore:
       - '.gitignore'
       - 'README.md'
-
 jobs:
   tag_validation:
     name: Tag validation
@@ -32,6 +31,8 @@ jobs:
         id: check_tag
         with:
           tag: ${{ steps.split.outputs._0 }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - if: ${{ steps.check_tag.outputs.exists == 'true' && github.event_name == 'pull_request' }}
         name: Post comment on PR
         uses: thollander/actions-comment-pull-request@1.0.1
