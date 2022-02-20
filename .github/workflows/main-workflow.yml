@@ -100,20 +100,6 @@ jobs:
         with:
           name: ${{ matrix.target }}_build
           path: ${{ github.workspace }}/${{ matrix.output }}
-  comment_build_artifacts:
-    name: Comment a link the artifacts generated during this workflow
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' }}
-    needs:
-      - tag_validation
-      - build
-    steps:
-      - name: add artifact links to pull request and related issues step
-        uses: montogeek/github-action-comment-artifacts@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          prefix: Here is the generated executable by OS.
   create_release:
     name: Github pre-release
     if: ${{ github.event_name == 'push' }}
