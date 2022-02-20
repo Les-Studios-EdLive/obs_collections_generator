@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:obs_collections_generator/model/collection_configuration.dart';
 import 'package:obs_collections_generator/model/configuration.dart';
-import 'package:yaml/yaml.dart';
+import 'package:obs_collections_generator/utils.dart';
 
-import '../utils.dart';
+import 'package:yaml/yaml.dart';
 
 class VerifyCommand extends Command {
   @override
