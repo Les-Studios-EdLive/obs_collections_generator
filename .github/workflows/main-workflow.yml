@@ -104,20 +104,16 @@ jobs:
     name: Comment a link the artifacts generated during this workflow
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' }}
-    continue-on-error: true
     needs:
       - tag_validation
       - build
     steps:
       - name: add artifact links to pull request and related issues step
-        uses: tonyhallett/artifacts-url-comments@v1.1.0
+        uses: montogeek/github-action-comment-artifacts@v1.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          errorNoArtifacts: false
           prefix: Here is the generated executable by OS.
-          format: name
-          addTo: pull
   create_release:
     name: Github pre-release
     if: ${{ github.event_name == 'push' }}
