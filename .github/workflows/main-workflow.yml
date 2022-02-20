@@ -65,40 +65,7 @@ jobs:
       - name: Analyse code
         run: dart analyze
       - name: Execute tests
-        run: dart test --coverage=coverage
-      - name: Upload coverage file
-        uses: actions/upload-artifact@v2
-        with:
-          name: lcov.info
-          path: ./coverage/lcov.info
-  coverage:
-    name: Update coverage
-    needs: [ testing ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download coverage file
-        uses: actions/download-artifact@v2
-        with:
-          name: lcov.info
-      # Comment coverage report
-      - name: Comment the coverage of the PR
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: romeovs/lcov-reporter-action@v0.2.21
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          lcov-file: ./lcov.info
-#       Disabled for now.
-#      - name: Update badge coverage
-#        if: ${{ github.event_name == 'push' }}
-#        uses: schneegans/dynamic-badges-action@v1.1.0
-#        with:
-#          auth: ${{ secrets.GIST_COVERAGE_BADGE_TOKEN }}
-#          gistID: ${{ secrets.GIST_ID_COVERAGE_BADGE }}
-#          filename: notre_dame_master_badge_coverage.json
-#          label: Code coverage
-#          message: ${{ needs.testing.outputs.coverage }}
-#          namedLogo: flutter
-#          color: green
+        run: dart test
   build:
     name: Build the CLI for ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
@@ -133,6 +100,24 @@ jobs:
         with:
           name: ${{ matrix.target }}_build
           path: ${{ github.workspace }}/${{ matrix.output }}
+  comment_build_artifacts:
+    name: Comment a link the artifacts generated during this workflow
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    continue-on-error: true
+    needs:
+      - tag_validation
+      - build
+    steps:
+      - name: add artifact links to pull request and related issues step
+        uses: tonyhallett/artifacts-url-comments@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          errorNoArtifacts: false
+          prefix: Here is the generated executable by OS.
+          format: name
+          addTo: pull
   create_release:
     name: Github pre-release
     if: ${{ github.event_name == 'push' }}
