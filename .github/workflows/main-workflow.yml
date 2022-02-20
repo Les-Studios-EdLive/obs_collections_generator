@@ -109,7 +109,7 @@ jobs:
       - build
     steps:
       - name: add artifact links to pull request and related issues step
-        uses: montogeek/github-action-comment-artifacts@v1.1.0
+        uses: montogeek/github-action-comment-artifacts@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
