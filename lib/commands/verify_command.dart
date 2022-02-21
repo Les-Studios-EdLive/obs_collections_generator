@@ -184,8 +184,8 @@ class VerifyCommand extends Command {
     stdout.writeln("Processing shared directory...");
 
     /// Testing colorimetry directory
-    Directory colorimetryDir =
-        Directory("${sharedDirectory.path}/${colorimetryPathConvention.replaceAll(RegExp(r'[/\\]'), '')}");
+    Directory colorimetryDir = Directory(
+        "${sharedDirectory.path}/${colorimetryPathConvention.replaceAll(RegExp(r'[/\\]'), '')}");
 
     if (_checkExists(
         entity: colorimetryDir,
