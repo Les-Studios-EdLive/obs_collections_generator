@@ -1,6 +1,6 @@
 # EdLive Collections
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/Les-Studios-EdLive/obs_collections?label=Latest%20version)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/Les-Studios-EdLive/obs_collections_generator?label=Latest%20version)
 
 ## Introduction
 
