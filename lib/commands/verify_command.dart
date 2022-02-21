@@ -185,13 +185,13 @@ class VerifyCommand extends Command {
 
     /// Testing colorimetry directory
     Directory colorimetryDir =
-        Directory("${sharedDirectory.path}/$colorimetryPathConvention");
+        Directory("${sharedDirectory.path}/${colorimetryPathConvention.replaceAll(RegExp(r'[/\\]'), '')}");
 
     if (_checkExists(
         entity: colorimetryDir,
         errorKey: colorimetryDir.path,
         currentErrors: wrongFiles)) {
-      final cameras = _configuration.cameras;
+      final cameras = List.from(_configuration.cameras);
       for (FileSystemEntity entity in colorimetryDir.listSync()) {
         if (entity is Directory) {
           final folderName = entity.path.split('/').last;
@@ -275,7 +275,7 @@ class VerifyCommand extends Command {
 
     final List<String> collectionNames = collectionConfigurations
         .map<String>((CollectionConfiguration e) => e.name)
-        .toList(growable: false);
+        .toList();
 
     if (_verbose) {
       stdout.writeln("Validating root collections directories...");
