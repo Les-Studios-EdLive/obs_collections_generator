@@ -4,7 +4,6 @@ import 'package:args/command_runner.dart';
 import 'package:obs_collections_generator/model/collection_configuration.dart';
 import 'package:obs_collections_generator/model/configuration.dart';
 import 'package:obs_collections_generator/utils.dart';
-
 import 'package:yaml/yaml.dart';
 
 class VerifyCommand extends Command {
@@ -18,6 +17,8 @@ class VerifyCommand extends Command {
       "collection specified in the configuration file";
 
   bool _verbose = false;
+
+  late Configuration _configuration;
 
   VerifyCommand() {
     argParser
@@ -58,12 +59,12 @@ class VerifyCommand extends Command {
     File? output;
 
     // Load configuration file
-    Configuration configuration =
+    _configuration =
         Configuration.fromYaml(loadYaml(configFile.readAsStringSync()));
 
     if (_verbose) {
       stdout.writeln(
-          "Configuration file loaded, version: ${configuration.version}");
+          "Configuration file loaded, version: ${_configuration.version}");
     }
 
     final sharedDirectory = Directory(argResults!["shared-dir-path"]);
@@ -93,13 +94,13 @@ class VerifyCommand extends Command {
     final Map<String, String> sharedErrors =
         _validateSharedDirectory(sharedDirectory);
     final Map<String, String> collectionsErrors = _validateCollectionsDirectory(
-        collectionsDirectory, configuration.collections);
+        collectionsDirectory, _configuration.collections);
 
     stdout.writeln("Searching for missing files...");
     final List<String> filesToCheck = [];
 
     // Check that every variant of collections as all its files
-    for (CollectionConfiguration collection in configuration.collections) {
+    for (CollectionConfiguration collection in _configuration.collections) {
       filesToCheck.addAll(collection
           .getFilesList(sharedDirectory.path, collectionsDirectory.path)
           .values);
@@ -182,6 +183,30 @@ class VerifyCommand extends Command {
 
     stdout.writeln("Processing shared directory...");
 
+    /// Testing colorimetry directory
+    Directory colorimetryDir =
+        Directory("${sharedDirectory.path}/$colorimetryPathConvention");
+
+    if (_checkExists(
+        entity: colorimetryDir,
+        errorKey: colorimetryDir.path,
+        currentErrors: wrongFiles)) {
+      final cameras = _configuration.cameras;
+      for (FileSystemEntity entity in colorimetryDir.listSync()) {
+        if (entity is Directory) {
+          final folderName = entity.path.split('/').last;
+          if (!cameras.contains(folderName)) {
+            wrongFiles.putIfAbsent(
+                entity.path,
+                () =>
+                    "WARNING - Camera not referenced in the configuration file.");
+          } else {
+            cameras.remove(folderName);
+          }
+        }
+      }
+    }
+
     for (FileSystemEntity entity in sharedDirectory.listSync(recursive: true)) {
       if (entity is File) {
         if (processedFiles.contains(entity.path)) {
@@ -203,7 +228,7 @@ class VerifyCommand extends Command {
           stdout.writeln("Checking ${entity.path}...");
         }
 
-        if (entity.path.contains(colorimetryPathConvention) &&
+        if (entity.path.contains(RegExp(colorimetryPathConvention)) &&
             !entity.path.contains(lutFilepathConvention)) {
           added = true;
           wrongFiles.putIfAbsent(
@@ -252,8 +277,6 @@ class VerifyCommand extends Command {
         .map<String>((CollectionConfiguration e) => e.name)
         .toList(growable: false);
 
-    final Map<String, Directory> collectionsDirectories = {};
-
     if (_verbose) {
       stdout.writeln("Validating root collections directories...");
     }
@@ -277,31 +300,27 @@ class VerifyCommand extends Command {
                   "WARNING - Collection $folderName not referenced in the configuration file");
         } else {
           if (_verbose) {
-            stdout.writeln("Adding ${entity.path} in the processing queue.");
+            stdout.writeln("Checking $folderName collection...");
           }
-          collectionsDirectories.putIfAbsent(folderName, () => entity);
+          errors.addAll(_validateCollectionDirectoryIntegrity(
+              entity,
+              collectionConfigurations
+                  .singleWhere((element) => element.name == folderName)));
+          collectionNames.remove(folderName);
         }
       }
     }
 
-    for (CollectionConfiguration collectionConfig in collectionConfigurations) {
-      if (collectionsDirectories.containsKey(collectionConfig.name)) {
-        if (_verbose) {
-          stdout.writeln("Checking ${collectionConfig.name}...");
-        }
-        errors.addAll(_validateCollectionDirectoryIntegrity(
-            collectionsDirectories[collectionConfig.name]!, collectionConfig));
-      } else {
-        if (_verbose) {
-          stderr.writeln(
-              "Collection directory for ${collectionConfig.name} collection doesn't exists.");
-        }
-        errors.putIfAbsent(
-            collectionConfig.name,
-            () =>
-                "ERROR - Collection directory for this collection doesn't exists."
-                " Should be ${collectionsDirectory.path}/${collectionConfig.name}");
+    for (String missingCollection in collectionNames) {
+      if (_verbose) {
+        stderr.writeln(
+            "Collection directory for $missingCollection collection doesn't exists.");
       }
+      errors.putIfAbsent(
+          missingCollection,
+          () =>
+              "ERROR - Collection directory for this collection doesn't exists."
+              " Should be ${collectionsDirectory.path}/$missingCollection");
     }
 
     return errors;
@@ -316,23 +335,19 @@ class VerifyCommand extends Command {
 
     for (String os in configuration.os) {
       // Check existence of os folders
-      _checkExists(
+      if (!_checkExists(
           entity: Directory("${directory.path}/$os"),
-          errorKey: "${configuration.name}/$os",
-          currentErrors: errors);
-
-      if (errors.containsKey("${configuration.name}/$os")) {
+          errorKey: "${directory.path}/$os",
+          currentErrors: errors)) {
         continue;
       }
 
       // Check for each camera supported if the directory exists
       for (String camera in configuration.cameras) {
-        _checkExists(
+        if (!_checkExists(
             entity: Directory("${directory.path}/$os/$camera"),
-            errorKey: "${configuration.name}/$os/$camera",
-            currentErrors: errors);
-
-        if (errors.containsKey("${configuration.name}/$os/$camera")) {
+            errorKey: "${directory.path}/$os/$camera",
+            currentErrors: errors)) {
           continue;
         }
 
@@ -342,7 +357,7 @@ class VerifyCommand extends Command {
               entity: File(
                   "${directory.path}/$os/$camera/${configuration.name}_$language.json"),
               errorKey:
-                  "${configuration.name}/$os/$camera/${configuration.name}_$language.json",
+                  "${directory.path}/$os/$camera/${configuration.name}_$language.json",
               currentErrors: errors);
         }
       }
@@ -351,23 +366,22 @@ class VerifyCommand extends Command {
     return errors;
   }
 
-  Map<String, String> _checkExists(
+  bool _checkExists(
       {required FileSystemEntity entity,
       required String errorKey,
       required Map<String, String> currentErrors}) {
+    bool exists = true;
     if (!entity.existsSync()) {
+      exists = false;
       if (_verbose) {
         stderr.writeln(
-            "$errorKey doesn't exists but collection should support it. "
-            "Skipping further validation");
+            "$errorKey doesn't exists but should. Skipping further validation");
       }
       currentErrors.putIfAbsent(
-          errorKey,
-          () =>
-              "ERROR - ${entity.path} doesn't exists but collection should support it.");
+          errorKey, () => "ERROR - ${entity.path} doesn't exists but should.");
     }
 
-    return currentErrors;
+    return exists;
   }
 
   /// Verify that every single [files] exists.

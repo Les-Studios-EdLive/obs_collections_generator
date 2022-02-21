@@ -2,7 +2,7 @@
 final gitKeepRegExp = RegExp(r'\.gitKeep|.gitkeep$');
 
 /// RegExp for the colorimetry path directory.
-final colorimetryPathConvention = RegExp(r'\/colorimetry\/');
+final colorimetryPathConvention = r'\/colorimetry\/';
 
 /// RegExp for the LUT files.
 final lutFilepathConvention =
