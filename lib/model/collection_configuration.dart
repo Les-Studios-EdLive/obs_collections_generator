@@ -106,6 +106,21 @@ class CollectionConfiguration {
     return files;
   }
 
+  /// Get the names of each variant for this collection.
+  List<String> getListVariant() {
+    final List<String> variants = [];
+
+    for (String currentOs in os) {
+      for (String camera in cameras) {
+        for (String language in languageSupported) {
+          variants.add("${name}_${currentOs}_${camera}_$language");
+        }
+      }
+    }
+
+    return variants;
+  }
+
   factory CollectionConfiguration.fromYaml(
           String name, YamlMap map) =>
       CollectionConfiguration(

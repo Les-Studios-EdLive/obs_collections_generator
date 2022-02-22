@@ -1,18 +1,23 @@
 import 'dart:io';
 
+import 'package:archive/archive_io.dart';
 import 'package:args/command_runner.dart';
-import 'package:obs_collections_generator/obs_collections_generator.dart';
 import 'package:obs_collections_generator/model/collection_configuration.dart';
 import 'package:obs_collections_generator/model/configuration.dart';
 import 'package:yaml/yaml.dart';
 
 class GenerateCommand extends Command {
+  static const missingFilesTag = "MISSING_FILES";
+  static const missingFilesFileName = "missing_files";
+
   @override
   final name = "generate";
 
   @override
   final description =
       "Generate all the OBS collection variant and zip them all";
+
+  late Directory _outputDir;
 
   GenerateCommand() {
     argParser
@@ -76,13 +81,19 @@ class GenerateCommand extends Command {
           "Configuration file loaded, version: ${configuration.version}");
     }
 
+    _outputDir = Directory(argResults!["output"]);
+
+    if(!_outputDir.existsSync()) {
+      _outputDir.createSync();
+    }
+
     // Build collections scenes
     stdout.writeln("Processing collections...");
     for (CollectionConfiguration collection in configuration.collections) {
       processCollection(collection,
           sharedAssetsPath: argResults!["shared-dir-path"],
           collectionsPath: argResults!["collections-dir-path"],
-          outputDirectoryPath: argResults!["output"],
+          ignoreMissingFiles: argResults!["ignore-missing-files"],
           verbose: verbose);
     }
 
@@ -94,36 +105,39 @@ class GenerateCommand extends Command {
   void processCollection(CollectionConfiguration collection,
       {required String sharedAssetsPath,
       required String collectionsPath,
-      required String outputDirectoryPath,
-      bool dryRun = false,
+      bool ignoreMissingFiles = false,
       bool verbose = false}) {
     stdout.writeln("Building ${collection.name} collection files...");
-
-    final outputDirectory = Directory(outputDirectoryPath);
     final listFiles =
         collection.getFilesList(sharedAssetsPath, collectionsPath);
+    final variants = collection.getListVariant();
 
     // Create missing files text file.
     final missingFilesByFolders =
-        copyFiles(listFiles, outputDirectory.path, verbose);
+        copyFiles(listFiles, _outputDir.path, verbose);
     File file;
 
     missingFilesByFolders.forEach((folderName, missingFiles) {
       file =
-          File("${outputDirectory.path}/$folderName/$missingFilesFileName.txt");
+          File("${_outputDir.path}/$folderName/$missingFilesFileName.txt");
       for (String missingFilePath in missingFiles) {
         file.writeAsStringSync(missingFilePath + "\n", mode: FileMode.append);
       }
       file.parent
-          .renameSync("${outputDirectory.path}/${missingFilesTag}_$folderName");
+          .renameSync("${_outputDir.path}/${missingFilesTag}_$folderName");
     });
 
     // Archive collections
     stdout.writeln("Start archiving ${collection.name} folders...");
     for (FileSystemEntity entity
-        in outputDirectory.listSync(followLinks: false)) {
+        in _outputDir.listSync(followLinks: false, recursive: false)) {
       if (entity is Directory) {
-        archive(entity, dryRun, verbose);
+        final folderName = entity.path.split("/").last.replaceAll("${missingFilesTag}_", "");
+        if(variants.contains(folderName)) {
+          variants.remove(folderName);
+          archive(entity, ignoreMissingFiles, verbose);
+
+        }
       }
     }
   }
@@ -160,5 +174,34 @@ class GenerateCommand extends Command {
     });
 
     return missingFiles;
+  }
+
+  /// Archiving the [directoryToArchive].
+  /// The folders archived will be named without any camera and OS name
+  /// (e.g. archive name: default_linux_v180_fr_CA, folder inside the archive: default_fr_CA)
+  void archive(Directory directoryToArchive,
+      [bool ignoreMissingFiles = false, bool verbose = false]) {
+    final ZipFileEncoder encoder = ZipFileEncoder();
+    final explodedPath = directoryToArchive.path.split("/");
+    final folderName = explodedPath.last;
+
+    if (folderName.contains(RegExp(r"^" + missingFilesTag)) &&
+        !ignoreMissingFiles) {
+      if (verbose) {
+        stdout.writeln(
+            "Skipping ${folderName.substring(missingFilesTag.length + 1)} folder because some files are missing...");
+      }
+    } else {
+      if (verbose) {
+        stdout.writeln("Archiving $folderName folder...");
+      }
+      encoder.zipDirectory(directoryToArchive, filename: "${_outputDir.path}/$folderName.zip");
+
+      if (verbose) {
+        stdout.writeln("Archive finished, deleting $folderName folder...");
+      }
+      // Delete the Zipped directory
+      directoryToArchive.deleteSync(recursive: true);
+    }
   }
 }
