@@ -16,7 +16,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          pullState: open
+          pullState: all
           prefix: Here is the generated executable by OS.
           format: name
           addTo: pull
