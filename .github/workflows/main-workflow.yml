@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '.gitignore'
+      - 'README.md'
+      - '.github/*'
   pull_request:
     paths-ignore:
       - '.gitignore'
@@ -85,7 +89,6 @@ jobs:
             output: obs_collections_generator_windows.exe
     needs:
       - testing
-      - tag_validation
     steps:
       - name: Checkout project
         uses: actions/checkout@v2
