@@ -83,7 +83,7 @@ class GenerateCommand extends Command {
 
     _outputDir = Directory(argResults!["output"]);
 
-    if(!_outputDir.existsSync()) {
+    if (!_outputDir.existsSync()) {
       _outputDir.createSync();
     }
 
@@ -118,8 +118,7 @@ class GenerateCommand extends Command {
     File file;
 
     missingFilesByFolders.forEach((folderName, missingFiles) {
-      file =
-          File("${_outputDir.path}/$folderName/$missingFilesFileName.txt");
+      file = File("${_outputDir.path}/$folderName/$missingFilesFileName.txt");
       for (String missingFilePath in missingFiles) {
         file.writeAsStringSync(missingFilePath + "\n", mode: FileMode.append);
       }
@@ -132,11 +131,11 @@ class GenerateCommand extends Command {
     for (FileSystemEntity entity
         in _outputDir.listSync(followLinks: false, recursive: false)) {
       if (entity is Directory) {
-        final folderName = entity.path.split("/").last.replaceAll("${missingFilesTag}_", "");
-        if(variants.contains(folderName)) {
+        final folderName =
+            entity.path.split("/").last.replaceAll("${missingFilesTag}_", "");
+        if (variants.contains(folderName)) {
           variants.remove(folderName);
           archive(entity, ignoreMissingFiles, verbose);
-
         }
       }
     }
