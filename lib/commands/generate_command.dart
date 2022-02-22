@@ -195,7 +195,7 @@ class GenerateCommand extends Command {
       if (verbose) {
         stdout.writeln("Archiving $folderName folder...");
       }
-      encoder.zipDirectory(directoryToArchive, filename: "${_outputDir.path}/$folderName.zip");
+      encoder.zipDirectory(directoryToArchive);
 
       if (verbose) {
         stdout.writeln("Archive finished, deleting $folderName folder...");
