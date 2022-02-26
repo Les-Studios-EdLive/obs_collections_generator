@@ -51,7 +51,7 @@ class CollectionConfiguration {
 
           // Add collection file
           files.putIfAbsent(
-              "$baseOutputPath/${name}_${language}_v$version.json",
+              "$baseOutputPath/${name}_${camera}_${language}_v$version.json",
               () =>
                   "$collectionsPath/$name/$currentOs/$camera/${name}_$language.json");
 
