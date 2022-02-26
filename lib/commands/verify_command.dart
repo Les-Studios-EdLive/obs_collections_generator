@@ -102,7 +102,8 @@ class VerifyCommand extends Command {
     // Check that every variant of collections as all its files
     for (CollectionConfiguration collection in _configuration.collections) {
       filesToCheck.addAll(collection
-          .getFilesList(sharedDirectory.path, collectionsDirectory.path)
+          .getFilesList(sharedDirectory.path, collectionsDirectory.path,
+              _configuration.version)
           .values);
     }
 

@@ -40,7 +40,7 @@ class CollectionConfiguration {
   /// The key is the destination path of the file while the value is the
   /// source path of the file.
   Map<String, String> getFilesList(
-      String sharedAssetsPath, String collectionsPath) {
+      String sharedAssetsPath, String collectionsPath, String version) {
     final Map<String, String> files = {};
 
     for (String currentOs in os) {
@@ -51,7 +51,7 @@ class CollectionConfiguration {
 
           // Add collection file
           files.putIfAbsent(
-              "$baseOutputPath/$name.json",
+              "$baseOutputPath/${name}_${camera}_${language}_v$version.json",
               () =>
                   "$collectionsPath/$name/$currentOs/$camera/${name}_$language.json");
 
