@@ -110,8 +110,8 @@ class GenerateCommand extends Command {
       bool ignoreMissingFiles = false,
       bool verbose = false}) {
     stdout.writeln("Building ${collection.name} collection files...");
-    final listFiles =
-        collection.getFilesList(sharedAssetsPath, collectionsPath, _configuration.version);
+    final listFiles = collection.getFilesList(
+        sharedAssetsPath, collectionsPath, _configuration.version);
     final variants = collection.getListVariant();
 
     // Create missing files text file.
