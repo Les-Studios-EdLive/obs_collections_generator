@@ -19,6 +19,8 @@ class GenerateCommand extends Command {
 
   late Directory _outputDir;
 
+  late Configuration _configuration;
+
   GenerateCommand() {
     argParser
       ..addFlag("ignore-missing-files",
@@ -73,12 +75,12 @@ class GenerateCommand extends Command {
     final configFile = File(argResults!["config"]);
 
     // Load configuration file
-    Configuration configuration =
+    _configuration =
         Configuration.fromYaml(loadYaml(configFile.readAsStringSync()));
     // If verbose
     if (verbose) {
       stdout.writeln(
-          "Configuration file loaded, version: ${configuration.version}");
+          "Configuration file loaded, version: ${_configuration.version}");
     }
 
     _outputDir = Directory(argResults!["output"]);
@@ -89,7 +91,7 @@ class GenerateCommand extends Command {
 
     // Build collections scenes
     stdout.writeln("Processing collections...");
-    for (CollectionConfiguration collection in configuration.collections) {
+    for (CollectionConfiguration collection in _configuration.collections) {
       processCollection(collection,
           sharedAssetsPath: argResults!["shared-dir-path"],
           collectionsPath: argResults!["collections-dir-path"],
@@ -109,7 +111,7 @@ class GenerateCommand extends Command {
       bool verbose = false}) {
     stdout.writeln("Building ${collection.name} collection files...");
     final listFiles =
-        collection.getFilesList(sharedAssetsPath, collectionsPath);
+        collection.getFilesList(sharedAssetsPath, collectionsPath, _configuration.version);
     final variants = collection.getListVariant();
 
     // Create missing files text file.
