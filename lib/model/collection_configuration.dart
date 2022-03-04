@@ -108,13 +108,13 @@ class CollectionConfiguration {
   }
 
   /// Get the names of each variant for this collection.
-  List<String> getListVariant() {
+  List<String> getListVariant(String version) {
     final List<String> variants = [];
 
     for (String currentOs in os) {
       for (String camera in cameras) {
         for (String language in languageSupported) {
-          variants.add("${name}_${currentOs}_${camera}_$language");
+          variants.add("${name}_${currentOs}_${camera}_${language}_v$version");
         }
       }
     }
