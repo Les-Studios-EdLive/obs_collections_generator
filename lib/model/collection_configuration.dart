@@ -47,7 +47,7 @@ class CollectionConfiguration {
       for (String camera in cameras) {
         for (String language in languageSupported) {
           String baseOutputPath =
-              "${name}_${currentOs}_${camera}_$language_v$version";
+              "${name}_${currentOs}_${camera}_${language}_v$version";
           String baseAssetsOutputPath = "$baseOutputPath/assets";
 
           // Add collection file
