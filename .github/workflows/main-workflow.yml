@@ -11,6 +11,9 @@ on:
     paths-ignore:
       - '.gitignore'
       - 'README.md'
+env:
+  app_name: obs_collections_generator
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   tag_validation:
     name: Tag validation
@@ -39,13 +42,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - if: ${{ steps.check_tag.outputs.exists == 'true' && github.event_name == 'pull_request' }}
         name: Post comment on PR
-        uses: thollander/actions-comment-pull-request@1.0.1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          message: '${{ steps.split.outputs._0 }} already exists, please update the pubspec version.'
-      - if: ${{ steps.check_tag.outputs.exists == 'true' }}
-        name: Fails because the tag already exists.
-        run: exit 1
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} -b '${{ steps.split.outputs._0 }} already exists, please update the pubspec version.'
+          exit 1
+#      - if: ${{ steps.check_tag.outputs.exists == 'true' }}
+#        name: Fails because the tag already exists.
+#        run: exit 1
   testing:
     name: Tests, analyse and format
     runs-on: ubuntu-latest
@@ -80,13 +82,13 @@ jobs:
         include:
           - target: linux
             os: ubuntu-latest
-            output: obs_collections_generator_linux
+            executable_extension: ''
           - target: macos
             os: macos-latest
-            output: obs_collections_generator_macos
+            executable_extension: ''
           - target: windows
             os: windows-latest
-            output: obs_collections_generator_windows.exe
+            executable_extension: '.exe'
     needs:
       - testing
     steps:
@@ -97,7 +99,7 @@ jobs:
       - name: Get dependencies
         run: dart pub get
       - name: Building executable
-        run: dart compile exe bin/obs_collections_generator.dart -o ${{ matrix.output }}
+        run: dart compile exe bin/obs_collections_generator.dart -o ${{ env.app_name }}_${{ matrix.target }}${{ matrix.executable_extension }}
       - name: Upload ${{ matrix.target }} build
         uses: actions/upload-artifact@v2
         with:
@@ -131,6 +133,6 @@ jobs:
           prerelease: true
           title: v${{ needs.tag_validation.outputs.version }}
           files: |
-            obs_collections_generator_linux
-            obs_collections_generator_macos
-            obs_collections_generator_windows.exe
+            ${{ env.app_name }}_linux
+            ${{ env.app_name }}_macos
+            ${{ env.app_name }}_windows.exe
