@@ -48,4 +48,3 @@ Please follow these naming rules:
 
 ### CLI usage 
 
-Under the ``cli-compiled`` folder you can find the 

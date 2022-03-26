@@ -86,15 +86,36 @@ class CollectionConfiguration {
 
           final collectionSharedAssetsDirectory =
               Directory("$collectionsPath/$name/shared");
+          stdout.writeln("Checking: ${collectionSharedAssetsDirectory.path}");
           if (collectionSharedAssetsDirectory.existsSync()) {
             for (FileSystemEntity entity
                 in collectionSharedAssetsDirectory.listSync(recursive: true)) {
               if (entity is File) {
-                if (entity.path.contains(RegExp(languageCodeFileRegexp)) &&
-                    entity.path
-                        .contains(RegExp(language + r'.[a-zA-Z0-9]+$'))) {
+                if (entity.path.contains(RegExp(languageCodeFileRegexp))) {
+                  if (entity.path
+                      .contains(RegExp(language + r'.[a-zA-Z0-9]+$'))) {
+                    files.update(
+                        baseAssetsOutputPath +
+                            entity.path
+                                .substring(
+                                    collectionSharedAssetsDirectory.path.length)
+                                .replaceAll(RegExp(languageCodeRegExp), ''),
+                        (_) => entity.path,
+                        ifAbsent: () => entity.path);
+                  } else {
+                    files.putIfAbsent(
+                        baseAssetsOutputPath +
+                            entity.path
+                                .substring(
+                                    collectionSharedAssetsDirectory.path.length)
+                                .replaceAll(RegExp(languageCodeRegExp), ''),
+                        () => entity.path);
+                  }
+                } else {
                   files.putIfAbsent(
-                      "$baseAssetsOutputPath${entity.path.substring(collectionSharedAssetsDirectory.path.length).replaceFirst(RegExp(languageCodeFileRegexp), '')}",
+                      baseAssetsOutputPath +
+                          entity.path.substring(
+                              collectionSharedAssetsDirectory.path.length),
                       () => entity.path);
                 }
               }
